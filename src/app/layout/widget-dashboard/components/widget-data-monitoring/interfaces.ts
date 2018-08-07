@@ -18,9 +18,15 @@ export interface IStatus {
   checked: boolean;
 }
 
+export interface IDials {
+  dial1: ICategoryTotal;
+  dial2: ICategoryTotal;
+  dial3: ICategoryTotal;
+}
+
 export interface ISettingsModel {
   availableStatuses: Array<IStatus>;
   filterByStatus: boolean;
-  dials: object;
+  dials: IDials;
   columnList: Array<IColumn>;
 }

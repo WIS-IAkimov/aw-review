@@ -2,12 +2,19 @@ import { Component, OnInit, OnChanges, OnDestroy, Input } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { IWidgetData, ICategoryTotal, IColumn, IStatus, ISettingsModel } from './interfaces';
-import { WidgetService } from './widget.service';
+
+function createStatus(name): IStatus {
+  return {name, checked: false};
+}
+
+function deepCopy(src): any {
+  return JSON.parse(JSON.stringify(src));
+}
 
 @Component({
   selector: 'app-widget-card',
   templateUrl: 'widget.component.html',
-  styleUrls: ['widget.component.scss']
+  styleUrls: ['widget.component.scss'],
 })
 export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
   @Input('data$') data$: Observable<IWidgetData[]>;
@@ -18,42 +25,27 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
   subscriptionCategoryList: Subscription;
 
   data: Array<IWidgetData>;
-  // columnList: Array<IColumn>;
-  // availableStatuses: Array<IStatus>;
-  // filterByStatus: boolean;
-  // dials: object;
   categoryList: Array<ICategoryTotal>;
   statusColors: object;
   activeDial: string;
   settingsState: ISettingsModel;
   editSettingsState: ISettingsModel;
 
-  constructor(private widgetService: WidgetService, private modalService: NgbModal) {
+  constructor(private modalService: NgbModal) {
+    const statuses = ['Pending', 'Assigned', 'Closed'];
+
     this.settingsState = {
-      availableStatuses: [
-        {
-          name: 'Pending',
-          checked: true
-        },
-        {
-          name: 'Assigned',
-          checked: false
-        },
-        {
-          name: 'Closed',
-          checked: false
-        }
-      ],
-      filterByStatus: true,
+      availableStatuses: statuses.map(status => createStatus(status)),
+      filterByStatus: false,
       dials: {
-        dial1: {Category: 'X1', TotalCount: 6},
-        dial2: {Category: 'X2', TotalCount: 6},
-        dial3: {Category: 'Other', TotalCount: 6}
+        dial1: {Category: '', TotalCount: 0},
+        dial2: {Category: '', TotalCount: 0},
+        dial3: {Category: '', TotalCount: 0}
       },
       columnList: []
     };
 
-    this.editSettingsState = JSON.parse(JSON.stringify(this.settingsState));
+    this.editSettingsState = deepCopy(this.settingsState);
 
     this.statusColors = {
       'Pending': '#ff0000',
@@ -83,39 +75,69 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  setCategoryList = (data) => {
+  private setCategoryList = (data) => {
     if (data !== undefined) {
       this.categoryList = data;
+      this.settingsState.dials.dial1 = this.categoryList[0];
+      this.settingsState.dials.dial2 = this.categoryList[1];
+      this.settingsState.dials.dial3 = this.getOtherCategories('dial3');
+
+      this.editSettingsState.dials = deepCopy(this.settingsState.dials);
     } else {
       console.error('category list from Observable is undefined');
     }
   }
 
-  normalizeData = (data) => {
+  private normalizeData = (data) => {
     if (data !== undefined) {
       this.data = data;
       this.settingsState.columnList = Object.keys(data[0]).map((col, index) => ({name: col, checked: true}));
-      this.editSettingsState = JSON.parse(JSON.stringify(this.settingsState));
+      this.editSettingsState = deepCopy(this.settingsState);
     } else {
       console.error('data from Observable is undefined');
     }
   }
 
-  openSettings(popupContent) {
+  private openSettings(popupContent) {
     this.modalService.open(popupContent, { centered: true, size: 'sm' });
   }
 
-  saveSettings(close) {
-    this.settingsState = JSON.parse(JSON.stringify(this.editSettingsState));
+  private saveSettings(close) {
+    this.settingsState = deepCopy(this.editSettingsState);
     close();
   }
 
-  chooseCategory(dial: string) {
+  private chooseCategory(dial: string) {
     if (this.activeDial === dial) {
       this.activeDial = null;
     } else {
       this.activeDial = dial;
     }
+  }
+
+  private getOtherDials(targetDial) {
+    const dials = Object.keys(this.settingsState.dials);
+    const indexTargetDial = dials.indexOf(targetDial);
+    dials.splice(indexTargetDial, 1);
+
+    return dials;
+  }
+
+  private getOptions(targetDial) {
+    const dials = this.getOtherDials(targetDial);
+  }
+
+  private getOtherCategories(targetDial): ICategoryTotal {
+    const dials = this.getOtherDials(targetDial);
+    const choosedCategories = dials.map(dial => this.settingsState.dials[dial].Category);
+
+    const otherCategoriesTotal = this.categoryList
+      .filter((category) => {
+        return !choosedCategories.includes(category.Category);
+      })
+      .reduce((total, category) => total + category.TotalCount, 0);
+
+    return {Category: 'Other', TotalCount: otherCategoriesTotal};
   }
 
   private onFilterByStatus(event) {
