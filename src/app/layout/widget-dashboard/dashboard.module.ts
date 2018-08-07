@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DragulaModule } from 'ng2-dragula';
 
 import { DashboardComponent } from './dashboard.component';
 import { WidgetComponent } from './components/widget-data-monitoring/widget.component';
@@ -11,7 +12,9 @@ import { ProgressBarComponent } from './components/radial-progress-bar/progress-
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
     NgbModule.forRoot(),
+    DragulaModule.forRoot()
   ],
   declarations: [
     DashboardComponent,

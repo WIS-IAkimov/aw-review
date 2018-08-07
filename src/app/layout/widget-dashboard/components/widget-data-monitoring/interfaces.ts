@@ -12,3 +12,15 @@ export interface IColumn {
   name: string;
   checked: boolean;
 }
+
+export interface IStatus {
+  name: string;
+  checked: boolean;
+}
+
+export interface ISettingsModel {
+  availableStatuses: Array<IStatus>;
+  filterByStatus: boolean;
+  dials: object;
+  columnList: Array<IColumn>;
+}
