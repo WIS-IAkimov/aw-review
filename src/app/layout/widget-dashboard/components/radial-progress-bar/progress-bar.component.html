@@ -1,0 +1,23 @@
+<div class="radial-progress-bar" [class.active]="isActive" (click)="handleClick()">
+  <svg class="svg" [attr.viewBox]="viewBox">
+    <circle [attr.cx]="radius"  
+            [attr.cy]="radius" 
+            [attr.r]="radius - strokeWidth / 2" 
+            fill="#fff"
+            stroke="#e6e6e6"
+            [style.stroke-width]="strokeWidth" />
+    <circle class="fill" 
+            [attr.cx]="radius" 
+            [attr.cy]="radius" 
+            [attr.r]="radius - strokeWidth / 2"
+            fill="none" 
+            stroke="#d4bd4f"
+            [style.stroke-width]="strokeWidth" 
+            [style.stroke-dasharray]="dasharray"
+            [style.stroke-dashoffset]="dasharray * (1 - (percent / 100))" />
+    
+    <text class="value" x="50%" y="38%">{{data.TotalCount}}</text>
+    <text class="category" x="50%" y="60%">{{data.Category}}</text>
+    <text class="percent" x="50%" y="76%">{{percent}}%</text>
+  </svg>
+</div>

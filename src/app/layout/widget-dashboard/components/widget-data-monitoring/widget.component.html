@@ -1,0 +1,103 @@
+<div class="widget-component">
+  <div class="widget-header">
+    {{widgetName}}
+    <div 
+      class="settings-toggler"
+      (click)="openSettings(content)"
+    >
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+  <div class="widget-body">
+    <div class="categories-wrapper">
+      <app-radial-progress-bar 
+        *ngFor="let dial of dials | keyvalue"
+        [data]="dial.value"
+        [total]="data.length"
+        [isActive]="activeDial === dial.key"
+        [dialName]="dial.key"
+        (chooseCategory)="chooseCategory($event)"
+      >
+      </app-radial-progress-bar>
+    </div>
+    <div class="total">
+      Current Total:
+      {{data.length}}
+    </div>
+    <div class="table-wrapper" *ngIf="activeDial !== null">
+      <table class="table">
+        <thead class="table-head">
+          <tr>
+            <th *ngFor="let colName of _columns"></th>
+          </tr>
+        </thead>
+        <tbody class="table-body">
+          <tr class="table-row" 
+              *ngFor="let object of _data"
+              [style.color]="getStatusColor(object.Status)">
+            <ng-container *ngFor="let item of object | keyvalue">
+              <td class="table-cell"
+                  *ngIf="_columns.includes(item.key)"
+                  >
+                {{ item.value }}
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header text-center">
+    <h4 class="modal-title">Settings</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label>Categories</label>
+        <div class="input-group">
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dial1" ngbDropdownToggle>X2</button>
+            <div ngbDropdownMenu aria-labelledby="dial1">
+              <button class="dropdown-item">Action - 1</button>
+              <button class="dropdown-item">Another Action</button>
+              <button class="dropdown-item">Something else is here</button>
+            </div>
+          </div>
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dial1" ngbDropdownToggle>X1</button>
+            <div ngbDropdownMenu aria-labelledby="dial1">
+              <button class="dropdown-item">Action - 1</button>
+              <button class="dropdown-item" disabled>Another Action</button>
+              <button class="dropdown-item">Something else is here</button>
+            </div>
+          </div>
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dial1" ngbDropdownToggle>Another</button>
+            <div ngbDropdownMenu aria-labelledby="dial1">
+              <button class="dropdown-item">Action - 1</button>
+              <button class="dropdown-item">Another Action</button>
+              <button class="dropdown-item">Something else is here</button>
+            </div>
+          </div>
+        </div>
+        <label>Columns</label>
+        <div class="input-group">
+        </div>
+        <label>Status</label>
+        <div class="input-group">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="saveSettings(c)">Save</button>
+  </div>
+</ng-template>
