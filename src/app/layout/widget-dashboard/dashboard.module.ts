@@ -6,7 +6,7 @@ import { DragulaModule } from 'ng2-dragula';
 
 import { DashboardComponent } from './dashboard.component';
 import { WidgetComponent } from './components/widget-data-monitoring/widget.component';
-import { WidgetService } from './components/widget-data-monitoring/widget.service';
+import { CapitalizePipe } from './capitalize.pipe';
 import { ProgressBarComponent } from './components/radial-progress-bar/progress-bar.component';
 
 @NgModule({
@@ -19,11 +19,10 @@ import { ProgressBarComponent } from './components/radial-progress-bar/progress-
   declarations: [
     DashboardComponent,
     WidgetComponent,
-    ProgressBarComponent
+    ProgressBarComponent,
+    CapitalizePipe
   ],
-  providers: [
-    WidgetService
-  ],
+  providers: [],
   exports: [
     DashboardComponent,
     WidgetComponent

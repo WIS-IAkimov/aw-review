@@ -60,43 +60,28 @@
     <div class="form-group">
       <div class="section-title">Categories</div>
       <div class="input-group">
-        <div ngbDropdown class="dial-dropdown">
-          <label class="label">Dial1: </label>
-          <button class="btn btn-primary" id="dial1" ngbDropdownToggle>X2</button>
-          <div ngbDropdownMenu aria-labelledby="dial1">
-            <button class="dropdown-item">Action - 1</button>
-            <button class="dropdown-item">Another Action</button>
-            <button class="dropdown-item">Something else is here</button>
-          </div>
-        </div>
-        <div ngbDropdown class="dial-dropdown">
-          <label class="label">Dial2: </label>
-          <button class="btn btn-primary" id="dial2" ngbDropdownToggle>X1</button>
-          <div ngbDropdownMenu aria-labelledby="dial2">
-            <button class="dropdown-item">Action - 1</button>
-            <button class="dropdown-item" disabled>Another Action</button>
-            <button class="dropdown-item">Something else is here</button>
-          </div>
-        </div>
-        <div ngbDropdown class="dial-dropdown">
-          <label class="label">Dial3: </label>
-          <button class="btn btn-primary" id="dial3" ngbDropdownToggle>Another</button>
-          <div ngbDropdownMenu aria-labelledby="dial3">
-            <button class="dropdown-item">Action - 1</button>
-            <button class="dropdown-item">Another Action</button>
-            <button class="dropdown-item">Something else is here</button>
+        <div ngbDropdown class="dial-dropdown"
+             *ngFor="let dial of editSettingsState.dials | keyvalue">
+          <label class="label">{{dial.key | capitalize}}: </label>
+          <button class="btn btn-primary" id="dial.key" ngbDropdownToggle>
+            {{dial.value.Category}}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dial.key">
+            <!-- <button class="dropdown-item" *ngFor="let option of getOptions(dial.key)">
+              {{option.Category}}
+            </button> -->
           </div>
         </div>
       </div>
       <div class="section-title">Columns</div>
       <div class="input-group column-section" dragula="columns" [(dragulaModel)]="editSettingsState.columnList">
-        <div class="column" *ngFor="let col of editSettingsState.columnList">
+        <label class="column" *ngFor="let col of editSettingsState.columnList">
           {{ col.name }}
           <input [checked]="col.checked"
                  type="checkbox" 
                  class="checkbox" 
                  (change)="toggleColumnState(col.name)"/>
-        </div>
+        </label>
       </div>
       <div class="section-title">
         Status
