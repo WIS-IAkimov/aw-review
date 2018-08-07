@@ -84,3 +84,49 @@
     }
   }
 }
+
+.settings-modal {
+  .column-section {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .section-title {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .column {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+  }
+
+  .dial-dropdown {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+
+    .label {
+      margin-right: 15px;
+      margin-bottom: 0;
+    }
+  }
+
+  .btn-primary {
+    position: relative;
+    flex: 1;
+    text-align: left;
+
+    &::after {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+    }
+  }
+}
