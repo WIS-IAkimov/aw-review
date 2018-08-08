@@ -118,16 +118,4 @@
       margin-bottom: 0;
     }
   }
-
-  .btn-primary {
-    position: relative;
-    flex: 1;
-    text-align: left;
-
-    &::after {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-    }
-  }
 }

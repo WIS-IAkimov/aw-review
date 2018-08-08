@@ -60,17 +60,15 @@
     <div class="form-group">
       <div class="section-title">Categories</div>
       <div class="input-group">
-        <div ngbDropdown class="dial-dropdown"
+        <div class="dial-dropdown" 
              *ngFor="let dial of editSettingsState.dials | keyvalue">
           <label class="label">{{dial.key | capitalize}}: </label>
-          <button class="btn btn-primary" id="dial.key" ngbDropdownToggle>
-            {{dial.value.Category}}
-          </button>
-          <div ngbDropdownMenu aria-labelledby="dial.key">
-            <!-- <button class="dropdown-item" *ngFor="let option of getOptions(dial.key)">
-              {{option.Category}}
-            </button> -->
-          </div>
+          <app-dropdown 
+            [options]="getOptions(dial.key)"
+            (change)="onClickOption($event, dial.key)"
+            [value]="dial.value.Category"
+            [key]="dial.key">
+          </app-dropdown>
         </div>
       </div>
       <div class="section-title">Columns</div>

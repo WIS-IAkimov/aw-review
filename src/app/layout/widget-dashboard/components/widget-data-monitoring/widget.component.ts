@@ -80,7 +80,7 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       this.categoryList = data;
       this.settingsState.dials.dial1 = this.categoryList[0];
       this.settingsState.dials.dial2 = this.categoryList[1];
-      this.settingsState.dials.dial3 = this.getOtherCategories('dial3');
+      this.settingsState.dials.dial3 = this.categoryList[2];
 
       this.editSettingsState.dials = deepCopy(this.settingsState.dials);
     } else {
@@ -123,13 +123,39 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     return dials;
   }
 
-  private getOptions(targetDial) {
+  private onClickOption(option, dial) {
+    if (option === 'Other') {
+      this.editSettingsState.dials[dial] = this.getOtherCategories(dial);
+    } else {
+      const TotalCount = this.categoryList.find(el => el.Category === option).TotalCount;
+
+      this.editSettingsState.dials[dial] = {Category: option, TotalCount: TotalCount};
+    }
+  }
+
+  private getOptions(targetDial): Array<string> {
     const dials = this.getOtherDials(targetDial);
+    const choosedCategories = dials.map(dial => this.editSettingsState.dials[dial].Category);
+    const isNotOther = !choosedCategories.includes('Other');
+
+    const options = this.categoryList
+      .filter((category) => {
+        return !choosedCategories.includes(category.Category);
+      })
+      .map(el => el.Category);
+
+    if (isNotOther) {
+      const result = ['Other', ...options];
+
+      return result;
+    }
+
+    return options;
   }
 
   private getOtherCategories(targetDial): ICategoryTotal {
     const dials = this.getOtherDials(targetDial);
-    const choosedCategories = dials.map(dial => this.settingsState.dials[dial].Category);
+    const choosedCategories = dials.map(dial => this.editSettingsState.dials[dial].Category);
 
     const otherCategoriesTotal = this.categoryList
       .filter((category) => {

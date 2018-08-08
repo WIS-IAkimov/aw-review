@@ -303,7 +303,52 @@ const observable1 = Observable.create(function (observer) {
       'FieldK': 'K20',
       'Category': 'X3',
       'Status': 'Closed'
-    }
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Closed'
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Pending'
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Assigned'
+    },
   ]);
 });
 
@@ -320,6 +365,10 @@ const observable2 = Observable.create(function (observer) {
     {
       'Category': 'X3',
       'TotalCount': 7
+    },
+    {
+      'Category': 'X4',
+      'TotalCount': 3
     }
   ]);
 });

@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard.component';
 import { WidgetComponent } from './components/widget-data-monitoring/widget.component';
 import { CapitalizePipe } from './capitalize.pipe';
 import { ProgressBarComponent } from './components/radial-progress-bar/progress-bar.component';
+import { DropdownComponent } from './components/dropdown/dropdown.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { ProgressBarComponent } from './components/radial-progress-bar/progress-
     DashboardComponent,
     WidgetComponent,
     ProgressBarComponent,
-    CapitalizePipe
+    CapitalizePipe,
+    DropdownComponent
   ],
   providers: [],
   exports: [

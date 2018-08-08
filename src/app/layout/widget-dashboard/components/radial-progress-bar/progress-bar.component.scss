@@ -15,6 +15,11 @@
     background-color: #9480e4;
   }
 
+  &:hover {
+    transition: background-color 0.2s ease;
+    background-color: #9e8de4;
+  }
+
   .svg {
     width: 70%;
     position: absolute;
@@ -48,8 +53,4 @@
     fill: rgb(17, 17, 17);
     text-anchor: middle;
   }
-}
-
-app-radial-progress-bar {
-  flex: 1;
 }
