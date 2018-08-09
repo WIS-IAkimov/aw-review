@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   border-radius: 4px;
+  background-color: #fff;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
   font-size: 16px;
   overflow: hidden;
@@ -93,7 +94,7 @@
       }
 
       .table-cell {
-        padding: 10px;
+        padding: 8px 10px;
         font-size: 1em;
       }
     }

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ICategoryTotal } from '../widget-data-monitoring/interfaces';
+import { ICategoryTotal } from '../data-monitoring-widget/interfaces';
 
 @Component({
   selector: 'app-dropdown',

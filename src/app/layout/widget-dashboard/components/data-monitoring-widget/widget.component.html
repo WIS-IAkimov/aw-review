@@ -1,5 +1,5 @@
 <div class="widget-component">
-  <div class="widget-header">
+  <div class="widget-header drag-handler">
     {{widgetName}}
     <div 
       class="settings-toggler"
@@ -28,7 +28,7 @@
       Current Total:
       {{data.length}}
     </div>
-    <div class="table-wrapper" *ngIf="activeDial !== null">
+    <div class="table-wrapper" #table *ngIf="activeDial !== null">
       <table class="table">
         <thead class="table-head">
           <tr>

@@ -1,4 +1,16 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  AfterViewChecked,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
+
 import { Observable, Subscription } from 'rxjs';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { IWidgetData, ICategoryTotal, IColumn, IStatus, ISettingsModel } from './interfaces';
@@ -16,22 +28,27 @@ function deepCopy(src): any {
   templateUrl: 'widget.component.html',
   styleUrls: ['widget.component.scss'],
 })
-export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class WidgetComponent implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
   @Input('data$') data$: Observable<IWidgetData[]>;
   @Input('categoryList$') categoryList$: Observable<ICategoryTotal[]>;
   @Input('widgetName') widgetName: string;
+  @Output('changeTableState') changeTableState: EventEmitter<object>;
+  @ViewChild('table') tableWrapper: ElementRef;
+  private prevTableWrapper: ElementRef;
+  private minHeightTable: number;
+  private prevTableHeight: number;
 
-  subscriptionDataList: Subscription;
-  subscriptionCategoryList: Subscription;
+  private subscriptionDataList: Subscription;
+  private subscriptionCategoryList: Subscription;
 
-  data: Array<IWidgetData>;
-  categoryList: Array<ICategoryTotal>;
-  statusColors: object;
-  activeDial: string;
-  settingsState: ISettingsModel;
-  editSettingsState: ISettingsModel;
-  filteredData: Array<IWidgetData>;
-  filteredColumns: Array<string>;
+  private data: Array<IWidgetData>;
+  private categoryList: Array<ICategoryTotal>;
+  private statusColors: object;
+  private activeDial: string;
+  private settingsState: ISettingsModel;
+  private editSettingsState: ISettingsModel;
+  private filteredData: Array<IWidgetData>;
+  private filteredColumns: Array<string>;
 
   constructor(private modalService: NgbModal) {
     const statuses = ['Pending', 'Assigned', 'Closed'];
@@ -55,7 +72,9 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       'Closed': '#10a710'
     };
 
+    this.minHeightTable = 170;
     this.activeDial = null;
+    this.changeTableState = new EventEmitter();
   }
 
   ngOnInit() {
@@ -74,6 +93,14 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.categoryList$ && !this.subscriptionCategoryList) {
       this.subscriptionCategoryList = this.categoryList$.subscribe(this.setCategoryList);
+    }
+  }
+
+  ngAfterViewChecked() {
+    if (this.prevTableWrapper !== this.tableWrapper) {
+      this.prevTableWrapper = this.tableWrapper;
+
+      this.onChangeTableHeight();
     }
   }
 
@@ -114,10 +141,32 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
   private chooseCategory(dial: string) {
     if (this.activeDial === dial) {
       this.activeDial = null;
+
     } else {
       this.activeDial = dial;
       this.filteredColumns = this.filterColumns();
       this.filteredData = this.filterData();
+    }
+  }
+
+  private onChangeTableHeight() {
+    if (this.tableWrapper) {
+      const node = this.tableWrapper.nativeElement;
+      const nodeHeight = node.clientHeight;
+      const isExpanded = nodeHeight > 50;
+      const event = {height: this.minHeightTable - nodeHeight, expand: true};
+
+      if (!isExpanded) {
+        this.prevTableHeight = this.prevTableHeight || nodeHeight;
+        this.changeTableState.emit(event);
+      }
+    } else {
+      if (this.prevTableHeight && this.prevTableHeight < 50) {
+        const event = {height: this.prevTableHeight, expand: false};
+        this.prevTableHeight = null;
+
+        this.changeTableState.emit(event);
+      }
     }
   }
 
