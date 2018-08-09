@@ -30,6 +30,8 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
   activeDial: string;
   settingsState: ISettingsModel;
   editSettingsState: ISettingsModel;
+  filteredData: Array<IWidgetData>;
+  filteredColumns: Array<string>;
 
   constructor(private modalService: NgbModal) {
     const statuses = ['Pending', 'Assigned', 'Closed'];
@@ -84,6 +86,7 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
 
       this.editSettingsState.dials = deepCopy(this.settingsState.dials);
     } else {
+      this.categoryList = [];
       console.error('category list from Observable is undefined');
     }
   }
@@ -94,6 +97,7 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       this.settingsState.columnList = Object.keys(data[0]).map((col, index) => ({name: col, checked: true}));
       this.editSettingsState = deepCopy(this.settingsState);
     } else {
+      this.data = [];
       console.error('data from Observable is undefined');
     }
   }
@@ -112,6 +116,8 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       this.activeDial = null;
     } else {
       this.activeDial = dial;
+      this.filteredColumns = this.filterColumns();
+      this.filteredData = this.filterData();
     }
   }
 
@@ -143,6 +149,8 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
         return !choosedCategories.includes(category.Category);
       })
       .map(el => el.Category);
+
+    // console.log('get Options');
 
     if (isNotOther) {
       const result = ['Other', ...options];
@@ -200,11 +208,11 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     return this.statusColors[status];
   }
 
-  private get _columns(): Array<string> {
+  private filterColumns(): Array<string> {
     return this.settingsState.columnList.filter((col) => col.checked).map((col) => col.name);
   }
 
-  private get _data() {
+  private filterData() {
     const newData = this.data
       .filter((data) => {
         const activeCategory = this.settingsState.dials[this.activeDial].Category;

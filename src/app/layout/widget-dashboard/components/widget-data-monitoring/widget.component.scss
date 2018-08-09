@@ -1,14 +1,24 @@
+:host {
+  display: flex;
+  width: 100%; 
+}
+
 .widget-component {
-  width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 4px;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
   font-size: 16px;
+  overflow: hidden;
 
   .widget-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 50px;
+    flex: 1 0 auto;
+    width: 100%;
+    max-height: 50px;
     padding: 10px;
     background-color: #9480e4;
     font-size: 1.2em;
@@ -18,6 +28,9 @@
   }
 
   .widget-body {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
     padding: 0.5em;
   }
 
@@ -46,9 +59,16 @@
   }
 
   .categories-wrapper {
-    display: flex;
+    width: 100%;
+    flex: 1 0 auto;
     margin-bottom: 15px;
     overflow: auto;
+  }
+
+  .slider-wrapper {
+    min-width: 100%;
+    display: inline-flex;
+    justify-content: center;
   }
 
   .total {
@@ -59,7 +79,6 @@
   }
 
   .table-wrapper {
-    max-height: 170px;
     overflow: auto;
   }
   

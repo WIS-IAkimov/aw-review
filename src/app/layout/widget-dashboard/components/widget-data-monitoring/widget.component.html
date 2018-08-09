@@ -3,7 +3,7 @@
     {{widgetName}}
     <div 
       class="settings-toggler"
-      (click)="openSettings(content)"
+      (click)="openSettings(popupContent)"
     >
       <div class="dot"></div>
       <div class="dot"></div>
@@ -12,15 +12,17 @@
   </div>
   <div class="widget-body">
     <div class="categories-wrapper">
-      <app-radial-progress-bar 
-        *ngFor="let dial of settingsState.dials | keyvalue"
-        [data]="dial.value"
-        [total]="data.length"
-        [isActive]="activeDial === dial.key"
-        [dialName]="dial.key"
-        (chooseCategory)="chooseCategory($event)"
-      >
-      </app-radial-progress-bar>
+      <div class="slider-wrapper">
+        <app-radial-progress-bar 
+          *ngFor="let dial of settingsState.dials | keyvalue"
+          [data]="dial.value"
+          [total]="data.length"
+          [isActive]="activeDial === dial.key"
+          [dialName]="dial.key"
+          (chooseCategory)="chooseCategory($event)"
+        >
+        </app-radial-progress-bar>
+      </div>
     </div>
     <div class="total">
       Current Total:
@@ -35,10 +37,10 @@
         </thead>
         <tbody class="table-body">
           <tr class="table-row" 
-              *ngFor="let object of _data"
+              *ngFor="let object of filteredData"
               [style.color]="getStatusColor(object.Status)">
             <td class="table-cell"
-                *ngFor="let col of _columns"
+                *ngFor="let col of filteredColumns"
                 >
               {{ object[col] }}
             </td>
@@ -49,7 +51,7 @@
   </div>
 </div>
 
-<ng-template #content let-c="close" let-d="dismiss">
+<ng-template #popupContent let-c="close" let-d="dismiss">
   <div class="modal-header text-center">
     <h4 class="modal-title">Settings</h4>
     <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
@@ -72,7 +74,11 @@
         </div>
       </div>
       <div class="section-title">Columns</div>
-      <div class="input-group column-section" dragula="columns" [(dragulaModel)]="editSettingsState.columnList">
+      <div 
+        class="input-group column-section" 
+        dragula="columns" 
+        [(dragulaModel)]="editSettingsState.columnList"
+      >
         <label class="column" *ngFor="let col of editSettingsState.columnList">
           {{ col.name }}
           <input [checked]="col.checked"
