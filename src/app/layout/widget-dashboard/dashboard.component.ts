@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IWidgetData, ICategoryTotal } from './components/widget-data-monitoring/interfaces';
+import { CompactType, DisplayGrid, GridsterConfig, GridsterItem, GridType } from 'angular-gridster2';
+import { IWidgetData, ICategoryTotal } from './components/data-monitoring-widget/interfaces';
+import { IWidgets } from './interfaces';
 
 const observable1 = Observable.create(function (observer) {
   observer.next([
@@ -303,7 +305,52 @@ const observable1 = Observable.create(function (observer) {
       'FieldK': 'K20',
       'Category': 'X3',
       'Status': 'Closed'
-    }
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Closed'
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Pending'
+    },
+    {
+      'FieldA': 'A20',
+      'FieldB': 'B20',
+      'FieldC': 'C20',
+      'FieldD': 'D20',
+      'FieldE': 'E20',
+      'FieldF': 'F20',
+      'FieldG': 'G20',
+      'FieldH': 'H20',
+      'FieldI': 'I20',
+      'FieldJ': 'J20',
+      'FieldK': 'K20',
+      'Category': 'X4',
+      'Status': 'Assigned'
+    },
   ]);
 });
 
@@ -320,6 +367,10 @@ const observable2 = Observable.create(function (observer) {
     {
       'Category': 'X3',
       'TotalCount': 7
+    },
+    {
+      'Category': 'X4',
+      'TotalCount': 3
     }
   ]);
 });
@@ -333,10 +384,145 @@ export class DashboardComponent implements OnInit {
   private widgetData$: Observable<IWidgetData[]>;
   private widgetDataCounter$: Observable<ICategoryTotal[]>;
 
+  private options: GridsterConfig;
+  private widgets: IWidgets;
+  private initGridSize: number;
+
+  @ViewChild('gridster') gridster: any;
+  @ViewChildren('dashboardWidget') dashboardWidgets: QueryList<any>;
+
+  constructor() {
+    this.widgets = {};
+    this.initGridSize = 24;
+
+    this.widgets.widget1 = {
+      cols: this.calculateInPercent(40), // width relative to container
+      rows: this.calculateInPercent(20), // height relative to container
+      y: 0, // Y-position relative to container
+      x: 0, // X-position relative to container
+      minItemRows: 5
+    };
+
+    this.widgets.widget2 = {
+      cols: this.calculateInPercent(20),
+      rows: this.calculateInPercent(20),
+      y: this.calculateInPercent(20),
+      x: 0
+    };
+  }
+
+  calculateInPercent(percent: number) {
+    return Math.round(this.initGridSize * (Math.min(percent, 100) / 100));
+  }
+
   ngOnInit() {
     this.widgetData$ = observable1;
     this.widgetDataCounter$ = observable2;
 
+    this.options = {
+      gridType: GridType.ScrollVertical,
+      compactType: CompactType.None,
+      margin: 10,
+      outerMargin: true,
+      outerMarginTop: null,
+      outerMarginRight: null,
+      outerMarginBottom: null,
+      outerMarginLeft: null,
+      mobileBreakpoint: 640,
+      minCols: this.initGridSize,
+      maxCols: 100,
+      minRows: this.initGridSize,
+      maxRows: 100,
+      maxItemCols: 100,
+      minItemCols: 2,
+      maxItemRows: 100,
+      minItemRows: 2,
+      maxItemArea: 2500,
+      minItemArea: 1,
+      defaultItemCols: 1,
+      defaultItemRows: 1,
+      fixedColWidth: 105,
+      fixedRowHeight: 105,
+      keepFixedHeightInMobile: false,
+      keepFixedWidthInMobile: false,
+      scrollSensitivity: 10,
+      scrollSpeed: 20,
+      enableEmptyCellClick: false,
+      enableEmptyCellContextMenu: false,
+      enableEmptyCellDrop: false,
+      enableEmptyCellDrag: false,
+      emptyCellDragMaxCols: 50,
+      emptyCellDragMaxRows: 50,
+      ignoreMarginInRow: false,
+      draggable: {
+        delayStart: 0,
+        enabled: true,
+        ignoreContent: true,
+        dragHandleClass: 'drag-handler',
+        dropOverItems: true,
+      },
+      resizable: {
+        enabled: true,
+      },
+      swap: true,
+      pushItems: true,
+      disablePushOnDrag: false,
+      disablePushOnResize: false,
+      pushDirections: {north: true, east: true, south: true, west: true},
+      pushResizeItems: false,
+      displayGrid: DisplayGrid.None,
+      disableWindowResize: false,
+      disableWarnings: false,
+      scrollToNewItems: false
+    };
+
     console.log('Dashboard initialized');
+  }
+
+  findCollisions(currentWidget) {
+    const widgets = this.dashboardWidgets.toArray().filter((widget) => {
+      if (currentWidget.x === widget.item.x && currentWidget.y === widget.item.y) {
+        return false;
+      }
+
+      const isCollisionX = widget.item.x + widget.item.cols > currentWidget.x;
+      const isCollisionY = widget.item.y < currentWidget.y + currentWidget.rows + 3;
+
+      return isCollisionX && isCollisionY;
+    });
+
+    return widgets;
+  }
+
+  resizeWidget(event, wgt) {
+    const currentWidget = this.dashboardWidgets.toArray().find((w) => {
+      return w.item.x === wgt.x && w.item.y === wgt.y;
+    });
+
+    const widgetsWithCollision = this.findCollisions(wgt);
+
+    if (event.expand) {
+      currentWidget.$item.rows += 3;
+      currentWidget.item.rows += 3;
+
+      widgetsWithCollision.forEach((w) => {
+        const rows = ((currentWidget.$item.y + currentWidget.$item.rows) - w.$item.y);
+
+        w.$item.y += rows;
+        w.item.y += rows;
+      });
+    } else {
+      currentWidget.$item.rows -= 3;
+      currentWidget.item.rows -= 3;
+
+      widgetsWithCollision.forEach((w) => {
+        const rows = (w.$item.y - (currentWidget.$item.y + currentWidget.$item.rows));
+
+        w.$item.y -= rows;
+        w.item.y -= rows;
+      });
+    }
+
+    this.gridster.calculateLayoutDebounce();
   }
 }

@@ -1,0 +1,15 @@
+:host {
+  flex: 1;
+}
+
+.btn-primary {
+  width: 100%;
+  position: relative;
+  text-align: left;
+
+  &::after {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+  }
+}

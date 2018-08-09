@@ -1,4 +1,16 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  AfterViewChecked,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
+
 import { Observable, Subscription } from 'rxjs';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { IWidgetData, ICategoryTotal, IColumn, IStatus, ISettingsModel } from './interfaces';
@@ -16,20 +28,27 @@ function deepCopy(src): any {
   templateUrl: 'widget.component.html',
   styleUrls: ['widget.component.scss'],
 })
-export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class WidgetComponent implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
   @Input('data$') data$: Observable<IWidgetData[]>;
   @Input('categoryList$') categoryList$: Observable<ICategoryTotal[]>;
   @Input('widgetName') widgetName: string;
+  @Output('changeTableState') changeTableState: EventEmitter<object>;
+  @ViewChild('table') tableWrapper: ElementRef;
+  private prevTableWrapper: ElementRef;
+  private minHeightTable: number;
+  private prevTableHeight: number;
 
-  subscriptionDataList: Subscription;
-  subscriptionCategoryList: Subscription;
+  private subscriptionDataList: Subscription;
+  private subscriptionCategoryList: Subscription;
 
-  data: Array<IWidgetData>;
-  categoryList: Array<ICategoryTotal>;
-  statusColors: object;
-  activeDial: string;
-  settingsState: ISettingsModel;
-  editSettingsState: ISettingsModel;
+  private data: Array<IWidgetData>;
+  private categoryList: Array<ICategoryTotal>;
+  private statusColors: object;
+  private activeDial: string;
+  private settingsState: ISettingsModel;
+  private editSettingsState: ISettingsModel;
+  private filteredData: Array<IWidgetData>;
+  private filteredColumns: Array<string>;
 
   constructor(private modalService: NgbModal) {
     const statuses = ['Pending', 'Assigned', 'Closed'];
@@ -53,7 +72,9 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       'Closed': '#10a710'
     };
 
+    this.minHeightTable = 170;
     this.activeDial = null;
+    this.changeTableState = new EventEmitter();
   }
 
   ngOnInit() {
@@ -75,15 +96,24 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  ngAfterViewChecked() {
+    if (this.prevTableWrapper !== this.tableWrapper) {
+      this.prevTableWrapper = this.tableWrapper;
+
+      this.onChangeTableHeight();
+    }
+  }
+
   private setCategoryList = (data) => {
     if (data !== undefined) {
       this.categoryList = data;
       this.settingsState.dials.dial1 = this.categoryList[0];
       this.settingsState.dials.dial2 = this.categoryList[1];
-      this.settingsState.dials.dial3 = this.getOtherCategories('dial3');
+      this.settingsState.dials.dial3 = this.categoryList[2];
 
       this.editSettingsState.dials = deepCopy(this.settingsState.dials);
     } else {
+      this.categoryList = [];
       console.error('category list from Observable is undefined');
     }
   }
@@ -94,6 +124,7 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
       this.settingsState.columnList = Object.keys(data[0]).map((col, index) => ({name: col, checked: true}));
       this.editSettingsState = deepCopy(this.settingsState);
     } else {
+      this.data = [];
       console.error('data from Observable is undefined');
     }
   }
@@ -110,8 +141,32 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
   private chooseCategory(dial: string) {
     if (this.activeDial === dial) {
       this.activeDial = null;
+
     } else {
       this.activeDial = dial;
+      this.filteredColumns = this.filterColumns();
+      this.filteredData = this.filterData();
+    }
+  }
+
+  private onChangeTableHeight() {
+    if (this.tableWrapper) {
+      const node = this.tableWrapper.nativeElement;
+      const nodeHeight = node.clientHeight;
+      const isExpanded = nodeHeight > 50;
+      const event = {height: this.minHeightTable - nodeHeight, expand: true};
+
+      if (!isExpanded) {
+        this.prevTableHeight = this.prevTableHeight || nodeHeight;
+        this.changeTableState.emit(event);
+      }
+    } else {
+      if (this.prevTableHeight && this.prevTableHeight < 50) {
+        const event = {height: this.prevTableHeight, expand: false};
+        this.prevTableHeight = null;
+
+        this.changeTableState.emit(event);
+      }
     }
   }
 
@@ -123,13 +178,41 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     return dials;
   }
 
-  private getOptions(targetDial) {
+  private onClickOption(option, dial) {
+    if (option === 'Other') {
+      this.editSettingsState.dials[dial] = this.getOtherCategories(dial);
+    } else {
+      const TotalCount = this.categoryList.find(el => el.Category === option).TotalCount;
+
+      this.editSettingsState.dials[dial] = {Category: option, TotalCount: TotalCount};
+    }
+  }
+
+  private getOptions(targetDial): Array<string> {
     const dials = this.getOtherDials(targetDial);
+    const choosedCategories = dials.map(dial => this.editSettingsState.dials[dial].Category);
+    const isNotOther = !choosedCategories.includes('Other');
+
+    const options = this.categoryList
+      .filter((category) => {
+        return !choosedCategories.includes(category.Category);
+      })
+      .map(el => el.Category);
+
+    // console.log('get Options');
+
+    if (isNotOther) {
+      const result = ['Other', ...options];
+
+      return result;
+    }
+
+    return options;
   }
 
   private getOtherCategories(targetDial): ICategoryTotal {
     const dials = this.getOtherDials(targetDial);
-    const choosedCategories = dials.map(dial => this.settingsState.dials[dial].Category);
+    const choosedCategories = dials.map(dial => this.editSettingsState.dials[dial].Category);
 
     const otherCategoriesTotal = this.categoryList
       .filter((category) => {
@@ -174,11 +257,11 @@ export class WidgetComponent implements OnInit, OnChanges, OnDestroy {
     return this.statusColors[status];
   }
 
-  private get _columns(): Array<string> {
+  private filterColumns(): Array<string> {
     return this.settingsState.columnList.filter((col) => col.checked).map((col) => col.name);
   }
 
-  private get _data() {
+  private filterData() {
     const newData = this.data
       .filter((data) => {
         const activeCategory = this.settingsState.dials[this.activeDial].Category;

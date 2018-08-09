@@ -1,0 +1,13 @@
+<div ngbDropdown>
+  <button class="btn btn-primary" id="{{key}}" ngbDropdownToggle>
+    {{value}}
+  </button>
+  <div ngbDropdownMenu [attr.aria-labelledby]="key">
+    <button class="dropdown-item"
+            [class.active]="option === value"
+            *ngFor="let option of options"
+            (click)="onClick(option)">
+      {{option}}
+    </button>
+  </div>
+</div>
